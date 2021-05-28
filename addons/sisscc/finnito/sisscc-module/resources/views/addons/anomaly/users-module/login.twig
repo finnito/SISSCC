@@ -1,0 +1,20 @@
+{% extends "finnito.theme.sisscc::layouts.default" %}
+
+{% block content %}
+    <div class="container some-container">
+        Some stuff
+        <div class="col-lg-6 col-lg-offset-3">
+
+            {{ form('login').redirect(request_get('redirect', '/'))|raw }}
+
+            <br>
+
+            <a href="{{ url_route('anomaly.module.users::password.forgot', {
+                'redirect': request_get('redirect', '/')
+            }) }}">
+                {{ trans('anomaly.module.users::message.forgot_password') }}
+            </a>
+
+        </div>
+    </div>
+{% endblock %}

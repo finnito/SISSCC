@@ -1,0 +1,22 @@
+{% extends "finnito.theme.sisscc::layouts.default" %}
+
+{% block content %}
+    <div class="card content p0 ~urge !low">
+        <div class="section p1 ~urge !normal">
+            <h1 class="heading">Login</h1>
+        </div>
+        <div class="p1">
+            {% set form = form('login').redirect(request_get("redirect", url_previous())).get() %}
+            {{ form.open|raw }}
+                {{ form.fields|raw }}
+                <button class="button ~urge !high" name="action" type="submit">Login</button>
+            {{ form.close|raw }}
+
+            <a href="{{ url_route('anomaly.module.users::password.forgot', {
+                'redirect': request_get('redirect', url_previous())
+            }) }}">
+                {{ trans('anomaly.module.users::message.forgot_password') }}
+            </a>
+        </div>
+    </div>
+{% endblock %}

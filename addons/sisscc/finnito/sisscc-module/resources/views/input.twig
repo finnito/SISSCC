@@ -1,0 +1,350 @@
+{% extends "finnito.theme.sisscc::layouts.default" %}
+
+{% block footerButtons %}
+{% if auth_user().hasAnyRole(["admin", "user"]) %}
+    | <a href="/{{ slug }}">Scoreboard</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+
+<h1 class='heading'></h1>
+<div class="queue-container"></div>
+<div class="data-entry-container card"></div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    /**
+     * Guide on making a queue followed from here:
+     * https://www.javascripttutorial.net/javascript-queue/
+     **/
+    function Queue() {
+       this.elements = [];
+    };
+
+    Queue.prototype.enqueue = function (e) {
+       this.elements.push(e);
+       this.updateFrontend();
+       window.clearInterval(QUEUE_CHECKER);
+       this.startChecker();
+    };
+
+    Queue.prototype.dequeue = function () {
+        this.updateFrontend();
+        return this.elements.shift();
+    };
+
+    Queue.prototype.peek = function () {
+        return !this.isEmpty() ? this.elements[0] : undefined;
+    };
+
+    Queue.prototype.isEmpty = function () {
+        this.updateFrontend();
+        return this.elements.length == 0;
+    };
+
+    Queue.prototype.updateFrontend = function() {
+        queueHTML = "<p>" + this.elements.length + " Updates in Queue</p>";
+        document.querySelector(".queue-container").innerHTML = queueHTML;
+    };
+
+    Queue.prototype.startChecker = function() {
+        console.log("QUEUE: Checker started.");
+        QUEUE_CHECKER = window.setInterval(checkUpdateQueue, 1000);
+    };
+
+    var QUEUE_CHECKER;
+    var QUEUE = new Queue();
+
+    var event_slug = "{{ slug }}";
+
+    var request = new XMLHttpRequest();
+    request.addEventListener("load", buildTable);
+    request.open("GET", "/api/event-data/" + event_slug);
+    request.send();
+
+    function buildTable() {
+        var resp = JSON.parse(this.responseText);
+
+        document.querySelector("h1").innerText = resp.name;
+
+        var data;
+        if (resp.results == null) {
+            data = {
+                "Team 1": {
+                    "results": [1, 2, 3],
+                    "category": "M"
+                },
+                "Team 2": {
+                    "results": [3, 2, 1],
+                    "category": "M"
+                },
+                "Team 3": {
+                    "results": [3, 3, 3],
+                    "category": "M"
+                },
+                "Team 4": {
+                    "results": [1, 1, 1],
+                    "category": "M"
+                }
+            };
+        } else {
+            data = JSON.parse(resp.results);
+        }
+
+
+        /* =================
+         BUILD TABLE HEADER
+        ================== */
+        var table = "";
+        table += "<div class='table-controls'>";
+        table += "<button class='button ~urge !normal' id='save-table'>Save Table</button>";
+        table += "<button class='button ~positive !normal' id='add-row' data-target='.data-entry-container'>Add Round</button>";
+        table += "<button class='button ~positive !normal' id='add-column' data-target='.data-entry-container'>Add Team</button>";
+        table += "<button class='button ~critical !normal' id='delete-column' data-target='.data-entry-container'>Delete Team</button>";
+        table += "<button class='button ~critical !normal' id='delete-round' data-target='.data-entry-container'>Delete Round</button>";
+        table += "</div>";
+        table += "<table class='table ~neutral !normal'>";
+        table += "<thead><tr><th></th>";
+        for (const [key, value] of Object.entries(data)) {
+            table += "<th class='team-name' data-team='" + key + "' contenteditable>" + key + "</th>";
+        };
+        table += "</tr>"
+
+        table += "<tr>";
+        table += "<th></th>";
+        for (const [key, value] of Object.entries(data)) {
+            table += "<th class='team-category'  data-team='" + key + "' contenteditable>" + value.category + "</th>";
+        };
+        table += "</tr>";
+
+        table += "</thead>";
+
+        /* =================
+          BUILD TABLE BODY
+        ================== */
+        table += "<tbody>";
+
+        console.log("Building Table Body: ", Object.entries(data));
+
+        var number_of_rows = Object.entries(data)[0][1].results.length;
+
+        var i;
+        for (i = 0; i < number_of_rows; i++) {
+            table += "<tr>";
+            table += "<th scope='row' data-round=" + (i+1) + "> R" + (i+1) + "</th>";
+            for (const [team, info] of Object.entries(data)) {
+                table += "<td>";
+                table += "<input class='field ~neutral !normal' data-team='" + team + "' data-round=" + (i+1) + " type='number' value='" + info.results[i] + "'/>";
+                table += "</td>";
+            };
+            table += "</tr>";
+        }
+        table += "</tbody>";
+        table += "</table>";
+        
+        document.querySelector(".data-entry-container").innerHTML = table;
+
+        document.querySelector(".data-entry-container").addEventListener("focusin", function() {
+            if (event.target.tagName == "TH") {
+                var range = document.createRange();
+                range.selectNodeContents(event.target);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        });
+
+        document.querySelector(".data-entry-container").addEventListener("focusin", function() {
+            if (event.target.tagName == "INPUT") {
+                var range = document.createRange();
+                range.selectNodeContents(event.target);
+                var sel = window.getSelection();
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        });
+
+        document.querySelector(".data-entry-container").addEventListener("input", debounce(function (event) {
+            console.log("Change detected in ", event.target);
+            if (event.target.tagName == "TH") {
+                if (event.target.classList.contains("team-name")) {
+                    updateTeamNameAttribute(event.target);
+                }
+            }
+
+            QUEUE.enqueue(serializeResults());
+            console.log("QUEUE: Checker started.");
+            
+        }, 1000));
+
+        document.querySelector("#save-table").addEventListener("click", function(event) {
+            QUEUE.enqueue(serializeResults());
+        });
+
+        document.querySelector("#delete-column").addEventListener("click", function(event) {
+            var team = prompt("Enter Team Name\nWarning - this is irreversible.");
+            
+            document.querySelectorAll(".data-entry-container table [data-team='" + team + "']").forEach(function(el) {
+                if (el.tagName == "TH") {
+                    el.remove();
+                } else {
+                    el.parentNode.remove();
+                }
+            });
+
+            QUEUE.enqueue(serializeResults());
+
+        });
+
+        document.querySelector("#delete-round").addEventListener("click", function(event) {
+            var round = prompt("Enter Round Number (e.g.: 1)\nWarning - this is irreversible.");
+            
+            document.querySelectorAll(".data-entry-container table tbody tr")[round-1].remove();
+
+            QUEUE.enqueue(serializeResults());
+
+        });
+
+        document.querySelector("#add-row").addEventListener("click", function(event) {
+            var table = document.querySelector(event.target.getAttribute("data-target") + " table");
+            var lastRow = table.rows[table.rows.length - 1].cloneNode(true);
+            for (let cell of lastRow.cells) {
+
+                if (cell.querySelector("input")) {
+                    var input = cell.querySelector("input");
+                    input.setAttribute("data-round", parseInt(input.getAttribute("data-round")) + 1);
+                    input.value = 0;   
+                } else {
+                    cell.innerText = "R" + (parseInt(cell.getAttribute("data-round")) + 1);
+                    cell.setAttribute("data-round", parseInt(cell.getAttribute("data-round")) + 1);
+                }
+                
+            };
+            table.querySelector("tbody").appendChild(lastRow);
+            QUEUE.enqueue(serializeResults());
+        });
+
+        document.querySelector("#add-column").addEventListener("click", function(event) {
+            var table = document.querySelector(event.target.getAttribute("data-target") + " table");
+            var numColumns = table.rows[0].cells.length;
+            
+            var headerRow = table.querySelector("thead");
+            var newCell = headerRow.rows[0].cells[headerRow.rows[0].cells.length-1].cloneNode(true);
+            newCell.innerText = "Team " + numColumns;
+            newCell.setAttribute("data-team", "Team " + numColumns);
+            headerRow.rows[0].appendChild(newCell);
+
+            // Team Category
+            var newCell = headerRow.rows[1].cells[headerRow.rows[1].cells.length-1].cloneNode(true);
+            newCell.setAttribute("data-team", "Team " + numColumns);
+            headerRow.rows[1].appendChild(newCell);
+
+            var body = table.querySelector("tbody");
+            for (let row of body.rows) {
+                var newCell = row.cells[row.cells.length-1].cloneNode(true);
+                newCell.innerHTML = "<input class='field ~neutral !normal' data-team='Team " + (numColumns) + "' data-round=" + row.cells[0].getAttribute("data-round") + " type='number' value='0'/>";
+                row.appendChild(newCell);
+            };
+
+            QUEUE.enqueue(serializeResults());
+        });
+    }
+
+    
+
+    function checkUpdateQueue() {
+        console.log("QUEUE: Checked at ", new Date());
+        if (!QUEUE.isEmpty()) {
+            postResultsData();
+            // console.log("QUEUE: Dequeued ", QUEUE.dequeue());
+        }
+
+        if (QUEUE.isEmpty()) {
+            console.log("QUEUE: Now empty.");
+            console.log("QUEUE: Checker stopped.");
+            window.clearInterval(QUEUE_CHECKER);
+        }
+        
+    }
+
+    /**
+     * Function sourced from a gist
+     * https://gist.github.com/ionurboz/51b505ee3281cd713747b4a84d69f434
+     **/
+    function debounce(fn, delay) {
+      var timer = null;
+      return function () {
+        var context = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          fn.apply(context, args);
+        }, delay);
+      };
+    }
+
+
+    function postResultsData() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", '/api/event-data/post/{{ slug }}', true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.setRequestHeader("X-CSRF-Token", CSRF_TOKEN);
+        console.log("POST Request: Opened");
+        xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+                console.log("POST Request: Returned", this.responseText);
+                QUEUE.dequeue();
+                console.log("POST Request: Finished");
+            }
+        }
+        console.log("POST Request: Sending", QUEUE.peek());
+        xhr.send(JSON.stringify({"data":QUEUE.peek()}));
+        console.log("POST Request: Sent");
+    }
+
+    function updateTeamNameAttribute(el) {
+        var col = el.cellIndex;
+        var tbody = document.querySelector(".data-entry-container table");
+        for (let row of tbody.rows) {
+            if (row.cells[col].querySelector("input")) {
+                row.cells[col].querySelector("input").setAttribute("data-team", el.innerText.trim());
+            } else {
+                row.cells[col].setAttribute("data-team", el.innerText.trim());
+            }
+            
+        }
+    }
+
+    function serializeResults() {
+        tbody = document.querySelector(".data-entry-container table tbody");
+        thead = document.querySelector(".data-entry-container table thead");
+        results = {};
+
+        for (let cell of tbody.rows[0].cells) {
+            if (cell.querySelector("input")) {
+                var input = cell.querySelector("input");
+                results[input.getAttribute("data-team")] = {"category": "", "results": []};
+            }
+        };
+
+        for (let cell of thead.rows[1].cells) {
+            if (cell.classList.contains("team-category")) {
+                results[cell.getAttribute("data-team")].category = cell.innerText.trim();
+            }
+        };
+
+        for (let row of tbody.rows) {
+            for (let cell of row.cells) {
+                if (cell.querySelector("input")) {
+                    var input = cell.querySelector("input");
+                    results[input.getAttribute("data-team")]["results"].push(input.value);
+                }
+            };
+        }
+
+        return results;
+    }
+});
+</script>
+
+{% endblock %}

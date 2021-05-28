@@ -1,0 +1,17 @@
+{% extends "finnito.theme.sisscc::layouts.default" %}
+
+{% block content %}
+    <div class="content card ~urge !normal p0">
+        <div class="section ~urge !high p1">
+            <h1 class="heading p0">Events</h1>
+        </div>
+        <div class="p1">
+            <p>The events listed below may not have public leaderboards, depending on the timeline of the event.</p>
+            <ul>
+            {% for event in events %}
+                <li>{{ event.date.date|date("d, F Y") }}: <a class="button" href="/{{ event.slug }}">{{ event.name }}</a></li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

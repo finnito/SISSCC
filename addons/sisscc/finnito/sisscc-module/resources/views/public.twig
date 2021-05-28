@@ -1,0 +1,200 @@
+{% extends "finnito.theme.sisscc::layouts.default" %}
+
+{% block footerButtons %}
+{% if auth_user().hasAnyRole(["admin", "user"]) %}
+    | <a href="/{{ event.slug }}/input">Scoreboard Input Panel</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if notice %}
+    <p class="section ~warning !normal p1">{{ notice }}</p>
+{% endif %}
+
+<h1>{{ event.name }}</h1>
+<div class="results">
+  <div class="Overall card ~urge !normal p0">
+    <section class="section ~urge !high p1">
+        <h2 class="heading">Overall</h2>
+    </section>
+      <table class="table table-1 p1">
+        <thead>
+            <tr>
+                <th>Place</th>
+                <th>Team</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <table class="table table-2 p1">
+        <thead>
+            <tr>
+                <th>Place</th>
+                <th>Team</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+  </div>
+  <div class="Mixed card ~warning !normal p0">
+    <section class="section ~warning !high p1">
+        <h2 class="heading">Mixed</h2>
+    </section>
+      <table class="table p1">
+        <thead>
+            <tr>
+                <th>Place</th>
+                <th>Team</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+  </div>
+  <div class="Male card ~info !normal p0">
+    <section class="section ~info !high p1">
+        <h2 class="heading">Male</h2>
+    </section>
+      <table class="table p1">
+        <thead>
+            <tr>
+                <th>Place</th>
+                <th>Team</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+  </div>
+  <div class="Female card ~positive !normal p0">
+      <section class="section ~positive !high p1">
+            <h2 class="heading">Female</h2>
+        </section>
+      <table class="table p1">
+        <thead>
+            <tr>
+                <th>Place</th>
+                <th>Team</th>
+                <th>Points</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+
+var NUM_PER_LEADERBOARD = 3;
+var RESULTS;
+
+window.addEventListener("DOMContentLoaded", function() {
+    var request = new XMLHttpRequest();
+    request.addEventListener("load", function(event) {
+        loadResults(event);
+    });
+    request.open("GET", "/api/results/{{ event.slug }}");
+    request.send();
+
+    console.log("Added update timer");
+    window.setInterval(queryResults, 2000);
+});
+
+function queryResults() {
+    var request = new XMLHttpRequest();
+    request.addEventListener("load", function(event){
+        let resp = JSON.parse(this.responseText);
+        if (JSON.stringify(resp) != JSON.stringify(RESULTS)) {
+            console.log("queryResults: New results available!");
+            RESULTS = resp;
+            loadResults(event);
+        }
+    });
+    request.open("GET", "/api/results/{{ event.slug }}");
+    request.send();
+}
+
+function loadResults(event) {
+    console.log("loadResults: ", event.target);
+    var resp = JSON.parse(event.target.responseText);
+    RESULTS = resp;
+    
+    var i,
+        team,
+        tbody;
+
+    /**
+     * MALE RESULTS
+     **/
+    tbody = "";
+    for (i = 0; i < NUM_PER_LEADERBOARD; i++) {
+        team = Object.entries(resp.male)[i];
+        tbody += "<tr>";
+        tbody += "<td>" + (i+1) + "</td>";
+        tbody += "<td>" + team[0] + "</td>";
+        tbody += "<td>" + team[1] + "</td>";
+        tbody += "</tr>";
+    }
+    document.querySelector(".Male table tbody").innerHTML = tbody;
+
+    /**
+     * FEMALE RESULTS
+     **/
+    tbody = "";
+    for (i = 0; i < NUM_PER_LEADERBOARD; i++) {
+        team = Object.entries(resp.female)[i];
+        tbody += "<tr>";
+        tbody += "<td>" + (i+1) + "</td>";
+        tbody += "<td>" + team[0] + "</td>";
+        tbody += "<td>" + team[1] + "</td>";
+        tbody += "</tr>";
+    }
+    document.querySelector(".Female table tbody").innerHTML = tbody;
+
+    /**
+     * MIXED RESULTS
+     **/
+    tbody = "";
+    for (i = 0; i < NUM_PER_LEADERBOARD; i++) {
+        team = Object.entries(resp.mixed)[i];
+        tbody += "<tr>";
+        tbody += "<td>" + (i+1) + "</td>";
+        tbody += "<td>" + team[0] + "</td>";
+        tbody += "<td>" + team[1] + "</td>";
+        tbody += "</tr>";
+    }
+    document.querySelector(".Mixed table tbody").innerHTML = tbody;
+
+    /**
+     * OVERALL RESULTS
+     **/
+    tbody1 = "";
+    tbody2 = ""
+    for (i = 0; i < Object.entries(resp.overall).length; i++) {
+        team = Object.entries(resp.overall)[i];
+        if (i < 25) {
+            tbody1 += "<tr>";
+            tbody1 += "<td>" + (i+1) + "</td>";
+            tbody1 += "<td>" + team[0] + "</td>";
+            tbody1 += "<td>" + team[1] + "</td>";
+            tbody1 += "</tr>";
+        } else {
+            tbody2 += "<tr>";
+            tbody2 += "<td>" + (i+1) + "</td>";
+            tbody2 += "<td>" + team[0] + "</td>";
+            tbody2 += "<td>" + team[1] + "</td>";
+            tbody2 += "</tr>";
+        }
+        
+    }
+    document.querySelector(".Overall .table-1 tbody").innerHTML = tbody1;
+    document.querySelector(".Overall .table-2 tbody").innerHTML = tbody2;
+
+
+}
+
+</script>
+{% endblock %}
