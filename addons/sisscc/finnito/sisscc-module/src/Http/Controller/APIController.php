@@ -64,15 +64,18 @@ class APIController extends PublicController
         return Response::json([], 200);
     }
 
-    public function getEventResults(EventRepository $events, $slug)
+    public function getEventResults(Auth $auth, EventRepository $events, $slug)
     {
+
+        $user = auth()->user();
+
         $event = $events->newQuery()->whereSlug($slug)->first();
 
         if (!$event) {
             abort(404, "Event Not Found");
         }
 
-        if (!$event->public) {
+        if ((!$event->public) && !$user->hasAnyRole(['admin', 'user'])) {
             abort(404, "Private Event");
         }
 

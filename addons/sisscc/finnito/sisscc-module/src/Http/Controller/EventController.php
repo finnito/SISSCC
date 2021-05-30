@@ -92,11 +92,19 @@ class EventController extends PublicController
                 return view("finnito.module.sisscc::upcoming", ["event" => $event]);
             }
         } else {
-            if ($user->hasAnyRole(['admin', 'user'])) {
+            if (!$event->public) {
+                if ($user->hasAnyRole(['admin', 'user'])) {
+                    return view("finnito.module.sisscc::public",
+                        [
+                            "event" => $event, 
+                            "notice" => "This event is visible because you are an admin/user. It is hidden to the public."
+                        ]
+                    );
+                }
+            } else {
                 return view("finnito.module.sisscc::public",
                     [
                         "event" => $event, 
-                        "notice" => "This event is visible because you are an admin/user. It is hidden to the public."
                     ]
                 );
             }
