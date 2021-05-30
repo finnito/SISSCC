@@ -2,7 +2,7 @@
 
 cd /srv/sisscc.lesueur.nz/
 
-sudo git pull origin main
+sudo git pull origin
 sudo -u www-data composer install --profile
 
 sudo -u www-data php artisan migrate --path=vendor/anomaly/streams-platform/migrations/application
