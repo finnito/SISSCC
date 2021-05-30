@@ -1,0 +1,16 @@
+{% extends "finnito.theme.sisscc::layouts.default" %}
+
+{% block content %}
+{% set form = form("event_form").redirect(request_get("redirect", url_previous())).get() %}
+<div class="card content p0 ~urge !low">
+    <div class="section p1 ~urge !normal">
+        <h1 class="heading">Create Event</h1>
+    </div>
+    <div class="p1">
+        {{ form.open|raw }}
+            {{ form.fields|raw }}
+            <button class="button ~urge !high" name="action" type="submit">Create</button>
+        {{ form.close|raw }}
+    </div>
+</div>
+{% endblock %}

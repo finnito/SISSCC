@@ -2,6 +2,7 @@
 
 use Anomaly\Streams\Platform\Http\Controller\PublicController;
 use Finnito\SissccModule\Event\EventRepository;
+use Finnito\SissccModule\Event\Form\EventFormBuilder;
 use Illuminate\Support\Facades\Auth;
 
 class EventController extends PublicController
@@ -33,6 +34,46 @@ class EventController extends PublicController
                 "slug" => $slug,
             ]
         );
+    }
+
+    public function frontendEditForm(EventFormBuilder $formBuilder, EventRepository $events, Auth $auth, $slug)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return redirect('/login');
+        }
+
+        if (!$user->hasAnyRole(['admin', 'user'])) {
+            abort(403, "You must have user or admin rights.");
+        }
+
+        $event = $events->newQuery()->whereSlug($slug)->first();
+
+        if (!$event) {
+            abort(404, "Event Not Found");
+        }
+
+        $this->template->set("meta_title", "Edit " . $event->name);
+
+        return view("finnito.module.sisscc::edit_event", ["event" => $event]);
+    }
+
+    public function frontendCreateForm(EventFormBuilder $formBuilder, Auth $auth)
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return redirect('/login');
+        }
+
+        if (!$user->hasAnyRole(['admin', 'user'])) {
+            abort(403, "You must have user or admin rights.");
+        }
+
+        $this->template->set("meta_title", "Create Event");
+
+        return view("finnito.module.sisscc::create_event");
     }
 
     public function publicFrontend(EventRepository $events, $slug)

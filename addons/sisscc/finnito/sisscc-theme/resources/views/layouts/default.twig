@@ -37,9 +37,12 @@
         <footer>
                 <p>
                 <a href="/">Home</a>
-                {% block footerButtons %}{% endblock %}
                 {% if auth_user().hasAnyRole(["admin", "user"]) %}
-                    | <a href="/admin/sisscc">Admin Panel</a> | <a href="/logout">Logout</a>
+                    | <a href="/create">Create Event</a>
+                {% endif %}
+                {% block footerButtons %}{% endblock %}
+                {% if auth_user() %}
+                    | <a href="/logout">Logout</a>
                 {% else %}
                     | <a href="/login">Login</a>
                 {% endif %}

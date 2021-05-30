@@ -2,7 +2,8 @@
 
 {% block footerButtons %}
 {% if auth_user().hasAnyRole(["admin", "user"]) %}
-    | <a href="/{{ slug }}">Scoreboard</a>
+    | <a href="/{{ slug }}">Event Scoreboard</a>
+    | <a href="/{{ slug }}/edit">Edit Event</a>
 {% endif %}
 {% endblock %}
 
