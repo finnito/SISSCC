@@ -15,6 +15,8 @@ class EventFormBuilder extends FormBuilder
         "slug",
         "date",
         "public",
+        "top_x_teams",
+        "leaderboard_refresh_interval",
     ];
 
     /**

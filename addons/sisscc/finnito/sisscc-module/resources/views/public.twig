@@ -89,7 +89,7 @@
 
 <script>
 
-var NUM_PER_LEADERBOARD = 3;
+var NUM_PER_LEADERBOARD = {{ event.top_x_teams }};
 var RESULTS;
 
 window.addEventListener("DOMContentLoaded", function() {
@@ -101,7 +101,7 @@ window.addEventListener("DOMContentLoaded", function() {
     request.send();
 
     console.log("Added update timer");
-    window.setInterval(queryResults, 2000);
+    window.setInterval(queryResults, {{ event.leaderboard_refresh_interval }});
 });
 
 function queryResults() {
@@ -125,13 +125,15 @@ function loadResults(event) {
     
     var i,
         team,
-        tbody;
+        tbody,
+        max;
 
     /**
      * MALE RESULTS
      **/
     tbody = "";
-    for (i = 0; i < NUM_PER_LEADERBOARD; i++) {
+    max = Object.entries(resp.male).length <  NUM_PER_LEADERBOARD ? Object.entries(resp.male).length : NUM_PER_LEADERBOARD;
+    for (i = 0; i < max; i++) {
         team = Object.entries(resp.male)[i];
         tbody += "<tr>";
         tbody += "<td>" + (i+1) + "</td>";
@@ -145,7 +147,8 @@ function loadResults(event) {
      * FEMALE RESULTS
      **/
     tbody = "";
-    for (i = 0; i < NUM_PER_LEADERBOARD; i++) {
+    max = Object.entries(resp.female).length <  NUM_PER_LEADERBOARD ? Object.entries(resp.female).length : NUM_PER_LEADERBOARD;
+    for (i = 0; i < max; i++) {
         team = Object.entries(resp.female)[i];
         tbody += "<tr>";
         tbody += "<td>" + (i+1) + "</td>";
@@ -159,7 +162,8 @@ function loadResults(event) {
      * MIXED RESULTS
      **/
     tbody = "";
-    for (i = 0; i < NUM_PER_LEADERBOARD; i++) {
+    max = Object.entries(resp.mixed).length <  NUM_PER_LEADERBOARD ? Object.entries(resp.mixed).length : NUM_PER_LEADERBOARD;
+    for (i = 0; i < max; i++) {
         team = Object.entries(resp.mixed)[i];
         tbody += "<tr>";
         tbody += "<td>" + (i+1) + "</td>";

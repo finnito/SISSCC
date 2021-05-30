@@ -9,4 +9,6 @@ return [
     "date.name" => "Event Date",
     "public.name" => "Event Public",
     "links.name" => "Links",
+    "top_x_teams.name" => "Number of Teams on Leaderboards",
+    "leaderboard_refresh_interval.name" => "Leaderboard Update Frequency (in milliseconds)",
 ];
