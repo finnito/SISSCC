@@ -394,6 +394,13 @@ body {
 .Male { grid-area: Male; }
 .Female { grid-area: Female; }
 
+.Overall,
+.Mixed,
+.Male,
+.Female {
+  text-align: center;
+}
+
 .p0 {
   padding: 0;
   box-sizing: border-box;
@@ -498,5 +505,6 @@ footer {
   .table-1, .table-2 {
     width: calc(50% - 1rem);
     vertical-align: top;
+    display: inline-block;
   }
 }
