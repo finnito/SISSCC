@@ -1,5 +1,6 @@
 .env
 .coverage
+.phpintel/
 /bin
 /core
 /build
@@ -7,3 +8,5 @@
 /coverage
 /node_modules
 /bower_components
+.phpintel
+.phpintel
