@@ -62,7 +62,7 @@ class FinnitoModuleSissccCreateEventStream extends Migration
     protected $stream = [
         'slug' => 'event',
         'title_column' => 'name',
-        'translatable' => true,
+        'translatable' => false,
         'versionable' => false,
         'trashable' => false,
         'searchable' => false,
@@ -76,7 +76,6 @@ class FinnitoModuleSissccCreateEventStream extends Migration
      */
     protected $assignments = [
         'name' => [
-            'translatable' => true,
             'required' => true,
         ],
         'slug' => [
