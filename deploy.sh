@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /srv/fitlytics.lesueur.nz/
+cd /srv/sisscc.lesueur.nz/
 
 sudo git pull origin main
 sudo -u www-data composer install --profile
