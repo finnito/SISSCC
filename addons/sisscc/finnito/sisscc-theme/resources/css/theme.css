@@ -442,6 +442,7 @@ button {
 
 .table-1, .table-2 {
   width: 100%;
+  display: block;
 }
 
 .data-entry-container {
