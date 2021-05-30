@@ -13,7 +13,7 @@ class EventController extends PublicController
         $user = auth()->user();
 
         if (!$user) {
-            abort(403, "Your must be logged in.");
+            return redirect('/login');
         }
 
         if (!$user->hasAnyRole(['admin', 'user'])) {
