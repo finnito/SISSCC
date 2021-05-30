@@ -4,12 +4,27 @@ use Anomaly\Streams\Platform\Http\Controller\PublicController;
 use Finnito\SissccModule\Event\EventRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Auth;
 
 class APIController extends PublicController
 {
-    public function getEventData(EventRepository $events, $slug)
+    public function getEventData(Auth $auth, EventRepository $events, $slug)
     {
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(403, "You must be logged in.");
+        }
+
+        if (!$user->hasAnyRole(['admin', 'user'])) {
+            abort(403, "You must have user or admin rights.");
+        }
+
         $event = $events->newQuery()->whereSlug($slug)->first();
+
+        if (!$event) {
+            abort(404, "Event Not Found");
+        }
 
         if ($event->results == "") {
             return Response::json("", 200);
@@ -21,9 +36,24 @@ class APIController extends PublicController
         return Response::json($event, 200);
     }
 
-    public function saveEventData(EventRepository $events, Request $request, $slug)
+    public function saveEventData(Auth $auth, EventRepository $events, Request $request, $slug)
     {
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(403, "You must be logged in.");
+        }
+
+        if (!$user->hasAnyRole(['admin', 'user'])) {
+            abort(403, "You must have user or admin rights.");
+        }
+
         $event = $events->newQuery()->whereSlug($slug)->first();
+
+        if (!$event) {
+            abort(404, "Event Not Found");
+        }
+
         $data = $request->input("data");
         $event->results = $data;
         $saved = $events->save($event);
@@ -37,6 +67,10 @@ class APIController extends PublicController
     public function getEventResults(EventRepository $events, $slug)
     {
         $event = $events->newQuery()->whereSlug($slug)->first();
+
+        if (!$event) {
+            abort(404, "Event Not Found");
+        }
 
         if (!$event->public) {
             abort(404, "Private Event");

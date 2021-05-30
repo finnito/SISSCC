@@ -6,6 +6,7 @@ use Finnito\SissccModule\Event\EventRepository;
 use Anomaly\Streams\Platform\Model\Sisscc\SissccEventEntryModel;
 use Finnito\SissccModule\Event\EventModel;
 use Illuminate\Routing\Router;
+use Finnito\SissccModule\Event\Form\EventFormBuilder;
 
 class SissccModuleServiceProvider extends AddonServiceProvider
 {
@@ -48,8 +49,11 @@ class SissccModuleServiceProvider extends AddonServiceProvider
         'admin/sisscc/create'    => 'Finnito\SissccModule\Http\Controller\Admin\EventController@create',
         'admin/sisscc/edit/{id}' => 'Finnito\SissccModule\Http\Controller\Admin\EventController@edit',
         "/"                    => "Finnito\SissccModule\Http\Controller\EventController@home",
+        "/create"           => "Finnito\SissccModule\Http\Controller\EventController@frontendCreateForm",
         "{slug}"                    => "Finnito\SissccModule\Http\Controller\EventController@publicFrontend",
         "{slug}/input"           => "Finnito\SissccModule\Http\Controller\EventController@adminFrontend",
+        "{slug}/edit"           => "Finnito\SissccModule\Http\Controller\EventController@frontendEditForm",
+
         "/api/event-data/{slug}" => [
             "verb" => "GET",
             "uses" => "Finnito\SissccModule\Http\Controller\APIController@getEventData",
@@ -121,6 +125,7 @@ class SissccModuleServiceProvider extends AddonServiceProvider
      */
     protected $bindings = [
         SissccEventEntryModel::class => EventModel::class,
+        "event_form" => EventFormBuilder::class,
     ];
 
     /**
