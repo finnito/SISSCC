@@ -158,11 +158,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         document.querySelector(".data-entry-container").addEventListener("focusin", function() {
             if (event.target.tagName == "INPUT") {
-                var range = document.createRange();
-                range.selectNodeContents(event.target);
-                var sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
+                event.target.select();
             }
         });
 
