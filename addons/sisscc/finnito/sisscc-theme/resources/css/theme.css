@@ -462,6 +462,10 @@ button {
   will-change: scroll-position;
 }
 
+.data-entry-container th {
+  text-align: center;
+}
+
 .content ul {
   margin-left: 0;
 }
