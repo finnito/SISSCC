@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function() {
             table += "<th scope='row' data-round=" + (i+1) + "> R" + (i+1) + "</th>";
             for (const [team, info] of Object.entries(data)) {
                 table += "<td>";
-                table += "<input class='field ~neutral !normal' data-team='" + team + "' data-round=" + (i+1) + " type='number' value='" + info.results[i] + "'/>";
+                table += "<input class='field ~neutral !normal' data-team='" + team + "' data-round=" + (i+1) + " value='" + info.results[i] + "'/>";
                 table += "</td>";
             };
             table += "</tr>";
