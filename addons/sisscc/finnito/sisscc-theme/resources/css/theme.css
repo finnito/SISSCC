@@ -458,6 +458,20 @@ button {
   overflow: auto;
 }
 
+.data-entry-container table {
+  max-height: 70vh;
+}
+.data-entry-container thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--color-background);
+}
+.data-entry-container .table tbody tr th {
+  position: sticky;
+  left: 0;
+  background-color: var(--color-background);
+}
+
 .data-entry-container {
   will-change: scroll-position;
 }
