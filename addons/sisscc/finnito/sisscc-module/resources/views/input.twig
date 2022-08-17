@@ -175,6 +175,55 @@ document.addEventListener("DOMContentLoaded", function() {
             
         }, 1000));
 
+        document.querySelector(".data-entry-container table tbody").addEventListener("keydown", function() {
+
+            // Detect SHIFT + ENTER presses.
+            // Navigate to the previous table row if possible.
+            if (event.keyCode === 13 && event.shiftKey) {
+                console.log("SHIFT+Enter pressed on ", event.target, ". Should navigate to previous row.");
+                console.log("At cell ", event.target.parentNode.parentNode.rowIndex, event.target.parentNode.cellIndex);
+
+                // Don't try to go up a row if on the first one.
+                if (event.target.parentNode.parentNode.rowIndex <= 2) {
+                    console.log("Can't move up a row, already at the top.");
+                    return;
+                }
+
+                console.log("Moving to ", event.target.parentNode.parentNode.rowIndex - 1, event.target.parentNode.cellIndex);
+                var cell = document.querySelector(".data-entry-container table")
+                    .rows[event.target.parentNode.parentNode.rowIndex - 1]
+                    .cells[event.target.parentNode.cellIndex]
+                    .querySelector("input");
+
+                    cell.focus({focusVisible: true, preventScroll: false});
+                    cell.select();
+                    return;
+            }
+
+            // Detect ENTER presses.
+            // Navigate to the next table row if possible.
+            if (event.keyCode === 13) {
+                console.log("Enter pressed on ", event.target, ". Should navigate to next row.");
+                console.log("At cell ", event.target.parentNode.parentNode.rowIndex, event.target.parentNode.cellIndex);
+                
+                // Don't try go to the next row if on the last one.
+                if (event.target.parentNode.parentNode.rowIndex > event.target.parentNode.parentNode.parentNode.rows.length) {
+                    console.log("Can't move down a row, already at the bottom.");
+                    return;
+                }
+
+                console.log("Moving to ", event.target.parentNode.parentNode.rowIndex + 1, event.target.parentNode.cellIndex);
+                var cell = document.querySelector(".data-entry-container table")
+                    .rows[event.target.parentNode.parentNode.rowIndex + 1]
+                    .cells[event.target.parentNode.cellIndex]
+                    .querySelector("input");
+                
+                    cell.focus({focusVisible: true, preventScroll: false});
+                    cell.select();
+                    return;
+            }
+        });
+
         document.querySelector("#save-table").addEventListener("click", function(event) {
             QUEUE.enqueue(serializeResults());
         });
