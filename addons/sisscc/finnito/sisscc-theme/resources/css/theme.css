@@ -401,6 +401,11 @@ body {
   text-align: center;
 }
 
+h1 { text-align: center; }
+
+h1, .heading, .table th { font-weight: 900; }
+.table td { font-weight: 700; }
+
 .p0 {
   padding: 0;
   box-sizing: border-box;
