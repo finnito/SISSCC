@@ -530,9 +530,10 @@ footer {
     grid-row-gap: 1rem;
   }
   .table-1, .table-2 {
-    width: calc(50% - 1rem);
+    width: calc(50% - 1em);
     vertical-align: top;
-    display: inline-block;
+    display: inline-table;
+    margin-top: 1rem;
   }
 }
 
