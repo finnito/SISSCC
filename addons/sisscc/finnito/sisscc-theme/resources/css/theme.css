@@ -458,7 +458,7 @@ button {
 }
 
 .results .table {
-  overflow: none;
+  overflow: visible;
 }
 
 .data-entry-container {
