@@ -427,6 +427,13 @@ body {
   min-height: 100vh;
 }
 
+section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 button {
   outline: none;
   border: none;
