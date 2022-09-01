@@ -36,6 +36,7 @@
         {% block content %}{% endblock %}
         <footer>
                 <p>
+                <button id="fullscreen">Fullscreen</button>
                 <a href="/">Home</a>
                 {% if auth_user().hasAnyRole(["admin", "user"]) %}
                     | <a href="/create">Create Event</a>
@@ -50,6 +51,24 @@
                 Developed by <a href="https://finn.lesueur.nz">Finn Le Sueur</a>
                 </p>
         </footer>
+        <script>
+        var viewFullScreen = document.getElementById("fullscreen");
+        if (viewFullScreen) {
+          viewFullScreen.addEventListener("click", function() {
+            var docElm = document.documentElement;
+            if (docElm.requestFullscreen) {
+              docElm.requestFullscreen();
+            } else if (docElm.msRequestFullscreen) {
+              docElm.msRequestFullscreen();
+            } else if (docElm.mozRequestFullScreen) {
+              docElm.mozRequestFullScreen();
+            } else if (docElm.webkitRequestFullScreen) {
+              docElm.webkitRequestFullScreen();
+            }
+          })
+        }
+
+        </script>
     </body>
 </html>
 {# {% endhtmlcompress %} #}
