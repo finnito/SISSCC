@@ -535,3 +535,7 @@ footer {
     display: inline-block;
   }
 }
+
+:fullscreen::backdrop { background-color: white; }
+
+:fullscreen footer, :fullscreen h1 { display: none; }

@@ -33,7 +33,9 @@
         {{ template.includes.render('head')|raw }}
     </head>
     <body>
+        <section>
         {% block content %}{% endblock %}
+        </section>
         <footer>
                 <p>
                 <button id="fullscreen">Fullscreen</button>
@@ -55,15 +57,16 @@
         var viewFullScreen = document.getElementById("fullscreen");
         if (viewFullScreen) {
           viewFullScreen.addEventListener("click", function() {
-            var docElm = document.documentElement;
-            if (docElm.requestFullscreen) {
-              docElm.requestFullscreen();
-            } else if (docElm.msRequestFullscreen) {
-              docElm.msRequestFullscreen();
-            } else if (docElm.mozRequestFullScreen) {
-              docElm.mozRequestFullScreen();
-            } else if (docElm.webkitRequestFullScreen) {
-              docElm.webkitRequestFullScreen();
+            var doc = document.documentElement;
+            var el = document.querySelector("body");
+            if (doc.requestFullscreen) {
+              el.requestFullscreen();
+            } else if (doc.msRequestFullscreen) {
+              el.msRequestFullscreen();
+            } else if (doc.mozRequestFullScreen) {
+              el.mozRequestFullScreen();
+            } else if (doc.webkitRequestFullScreen) {
+              el.webkitRequestFullScreen();
             }
           })
         }
