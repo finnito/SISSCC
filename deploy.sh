@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd /srv/sisscc.lesueur.nz/
+#cd /srv/sisscc.lesueur.nz/
+cd /volume1/web/sisscc.lesueur.nz/
 
 sudo git pull origin
 sudo -u www-data composer install --profile
