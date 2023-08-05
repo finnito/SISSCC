@@ -4,14 +4,14 @@
 cd /volume1/web/sisscc.lesueur.nz/
 
 sudo git pull origin
-sudo -u www-data composer install --profile
+sudo -u http composer install --profile
 
-sudo -u www-data php artisan migrate --path=vendor/anomaly/streams-platform/migrations/application
-sudo -u www-data php artisan migrate --all-addons
-sudo -u www-data php artisan assets:clear
-sudo -u www-data php artisan view:clear
-sudo -u www-data php artisan httpcache:clear
+sudo -u http php artisan migrate --path=vendor/anomaly/streams-platform/migrations/application
+sudo -u http php artisan migrate --all-addons
+sudo -u http php artisan assets:clear
+sudo -u http php artisan view:clear
+sudo -u http php artisan httpcache:clear
 
-sudo chown -R www-data:www-data ./
+sudo chown -R http:http ./
 sudo chmod -R ug+rwx storage bootstrap/cache;
-sudo -u www-data composer dump-autoload --profile
+sudo -u http composer dump-autoload --profile
